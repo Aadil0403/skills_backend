@@ -2,11 +2,9 @@ const { USERS, TASKS } = require('../models')
 const { asyncErrorHandler, CustomError } = require('../helpers')
 const bcryptjs = require('bcryptjs');
 const jwt = require('jsonwebtoken');
-const {jwt_secret} = require('../../config/config');
-const { log } = require('winston');
+const {jwt_secret,token_timeout} = require('../../config/config');
 
 const signup = asyncErrorHandler(async (req, res) => {
-    
     const userDetails = req.body;
     const regNo = userDetails.regNo;
     const password = userDetails.password;
@@ -52,11 +50,9 @@ const signup = asyncErrorHandler(async (req, res) => {
                 drive: userDetails.drive2
             }
         })
-        let abc= await newUser.save();
-        console.log(abc);
-        let cde=await newTask.save();
-        console.log(cde);
-        res.json({ message: 'User created successfully' });
+        await newUser.save();
+        await newTask.save();
+        res.json({ message: 'Signed up successfully' });
     }
 })
 
@@ -68,16 +64,16 @@ const login = asyncErrorHandler(async (req, res) => {
     }
     const user = await USERS.findOne({email: reg.email});
     if(!user){
-        res.status(403).json({message:"Invalid credentials"});
+        throw new CustomError("Invalid credentials", 403);
     }
     
     const verifyPassword=await bcryptjs.compare(reg.password,user.password)
     if(!verifyPassword){
-        throw new CustomError("Invalid credentials", 401);
+        throw new CustomError("Invalid credentials", 403);
     }
     
-    const token = jwt.sign({ email: reg.email, role: 'user' }, jwt_secret, { expiresIn: process.env.TOKEN_TIMEOUT });
-    res.json({ message: 'Success!', token });
+    const token = jwt.sign({ email: reg.email}, jwt_secret, { expiresIn: token_timeout });
+    res.json({ message: 'Logged in successfully', token });
 })
 
 const getUser = asyncErrorHandler(async (req, res) => {
@@ -85,6 +81,13 @@ const getUser = asyncErrorHandler(async (req, res) => {
     const user = await USERS.findOne({ email });
     const regNo = user.regNo;
     const task = await TASKS.findOne({ regNo });
+
+    if(!user){
+        throw new CustomError("User not found",403);
+    }
+    if(!task){
+        throw new CustomError("Task not found",403);
+    }
     
     const userData = {
         username: user.username,
@@ -92,30 +95,24 @@ const getUser = asyncErrorHandler(async (req, res) => {
         domain1: task.domain1,
         domain2: task.domain2
     }
-    if (user) {
-        res.json({ userData });
-    } else {
-        res.status(403).json({ message: 'User not found' });
-    }
+    res.json({ userData });
 })
 
 const getUserEmail = asyncErrorHandler(async (req, res) => {
     const email = req.user.email;
     const user = await USERS.findOne({ email });
-    console.log(user);
     res.json({
         username: user.username
     })
 })
 
 const getUserName=asyncErrorHandler(async (req, res) => {
-  
     const tasks = await TASKS.find({ });
     console.log(tasks);
     res.json({
       tasks:tasks
     })
-  })
+})
 
 const updateUserDomain = asyncErrorHandler(async (req, res) => {
     const user = await TASKS.findOneAndUpdate({ regNo: req.body.regNo }, req.body, { new: true });
