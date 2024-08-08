@@ -50,11 +50,11 @@ const signup = asyncErrorHandler(async (req, res) => {
       email: email,
       domain1: {
         description: userDetails.domain1.description,
-        drive: userDetails.domain1.drive1,
+        drive: userDetails.domain1.drive,
       },
       domain2: {
         description: userDetails.domain2.description,
-        drive: userDetails.drive2,
+        drive: userDetails.drive,
       },
     });
     await newUser.save();
