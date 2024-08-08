@@ -11,6 +11,8 @@ const auth = async (req, res, next) => {
         }
         const token = authToken.split(' ')[1]
         const user= jwt.verify(token, config.jwt_secret)
+        console.log(user);
+        
         req.user = user;
         next()
     } catch (error) {
