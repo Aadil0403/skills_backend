@@ -41,7 +41,8 @@ const signup = asyncErrorHandler(async (req, res) => {
 
         const newUser = new USERS(payload);
         const newTask = new TASKS({
-            regNo: userDetails.regNo,
+            regNo:regNo,
+            email:email,
             domain1: {
                 description: userDetails.domain1.description,
                 drive: userDetails.domain1.drive1
