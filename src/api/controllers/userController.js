@@ -3,6 +3,7 @@ const { asyncErrorHandler, CustomError } = require('../helpers')
 const bcryptjs = require('bcryptjs');
 const jwt = require('jsonwebtoken');
 const {jwt_secret} = require('../../config/config');
+const { log } = require('winston');
 
 const signup = asyncErrorHandler(async (req, res) => {
     
@@ -42,16 +43,18 @@ const signup = asyncErrorHandler(async (req, res) => {
         const newTask = new TASKS({
             regNo: userDetails.regNo,
             domain1: {
-                description: userDetails.domain1,
-                drive: userDetails.drive1
+                description: userDetails.domain1.description,
+                drive: userDetails.domain1.drive1
             },
             domain2: {
-                description: userDetails.domain2,
+                description: userDetails.domain2.description,
                 drive: userDetails.drive2
             }
         })
-        await newUser.save();
-        await newTask.save();
+        let abc= await newUser.save();
+        console.log(abc);
+        let cde=await newTask.save();
+        console.log(cde);
         res.json({ message: 'User created successfully' });
     }
 })
@@ -66,13 +69,11 @@ const login = asyncErrorHandler(async (req, res) => {
     if(!user){
         res.status(403).json({message:"Invalid credentials"});
     }
-    console.log("user "+user);
     
     const verifyPassword=await bcryptjs.compare(reg.password,user.password)
     if(!verifyPassword){
         throw new CustomError("Invalid credentials", 401);
     }
-    console.log("hihi");
     
     const token = jwt.sign({ email: reg.email, role: 'user' }, jwt_secret, { expiresIn: process.env.TOKEN_TIMEOUT });
     res.json({ message: 'Success!', token });
@@ -83,6 +84,7 @@ const getUser = asyncErrorHandler(async (req, res) => {
     const user = await USERS.findOne({ email });
     const regNo = user.regNo;
     const task = await TASKS.findOne({ regNo });
+    
     const userData = {
         username: user.username,
         email: user.email,
@@ -99,10 +101,20 @@ const getUser = asyncErrorHandler(async (req, res) => {
 const getUserEmail = asyncErrorHandler(async (req, res) => {
     const email = req.user.email;
     const user = await USERS.findOne({ email });
+    console.log(user);
     res.json({
         username: user.username
     })
 })
+
+const getUserName=asyncErrorHandler(async (req, res) => {
+  
+    const tasks = await TASKS.find({ });
+    console.log(tasks);
+    res.json({
+      tasks:tasks
+    })
+  })
 
 const updateUserDomain = asyncErrorHandler(async (req, res) => {
     const user = await TASKS.findOneAndUpdate({ regNo: req.body.regNo }, req.body, { new: true });
@@ -113,4 +125,4 @@ const updateUserDomain = asyncErrorHandler(async (req, res) => {
     }
 })
 
-module.exports = {signup,login,getUser,getUserEmail,updateUserDomain}
+module.exports = {signup,login,getUser,getUserEmail,updateUserDomain,getUserName};

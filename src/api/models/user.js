@@ -8,6 +8,9 @@ const userSchema = new mongoose.Schema({
     email: {
       type: String,
       required: true,
+      unique:true,
+      lowercase: true,
+      match: /^\w+([\.-]?\w+)*@\w+([\.-]?\w+)*(\.\w{2,3})+$/
     },
     regNo: {
       type: Number,
@@ -17,7 +20,9 @@ const userSchema = new mongoose.Schema({
     phNo: {
       type: Number,
       required: true,
+      minlength: 10,
       maxLength: 10,
+      match: /^\d{10}$/ // Ensure only 10 digits
     },
     branch: {
       type: String,
@@ -34,4 +39,4 @@ const userSchema = new mongoose.Schema({
   });
 
 const USERS = mongoose.model('User', userSchema);
-module.exports = USERS
+module.exports = USERS;

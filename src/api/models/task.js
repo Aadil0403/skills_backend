@@ -6,10 +6,16 @@ const taskSchema = new mongoose.Schema({
       required: true,
       unique: true
     },
+    email:{
+      type: String,
+      required: true,
+      unique: true,
+      lowercase: true,
+      match: /^\w+([\.-]?\w+)*@\w+([\.-]?\w+)*(\.\w{2,3})+$/
+    },
     domain1: {
       description: {
         type: String,
-        url: String,
         required: true
       },
       drive: {
@@ -40,7 +46,6 @@ const taskSchema = new mongoose.Schema({
     domain2: {
       description: {
         type: String,
-        url: String,
         required: true
       },
       drive: {
