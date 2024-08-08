@@ -1,16 +1,44 @@
 const { USERS, TASKS } = require('../models')
 const { asyncErrorHandler, CustomError } = require('../helpers')
+const bcryptjs = require('bcryptjs');
+const jwt = require('jsonwebtoken');
+const {jwt_secret} = require('../../config/config');
 
 const signup = asyncErrorHandler(async (req, res) => {
+    
     const userDetails = req.body;
     const regNo = userDetails.regNo;
+    const password = userDetails.password;
+    const username = userDetails.username;
+    const email = userDetails.email;
+    const phNo = userDetails.phNo;
+    const branch = userDetails.branch;
+    const year = userDetails.year;
+
+    if(!password || !username || !regNo || !phNo || !branch || !year || !password){
+        throw new CustomError("Fill all the details", 401);
+    }
+
     const user = await USERS.findOne({ regNo });
 
     if (user) {
         throw new CustomError("User already exists", 401);
     }
     else {
-        const newUser = new USERS(userDetails);
+        const salt = await bcryptjs.genSalt(10)
+        const hashpassword = await bcryptjs.hash(password,salt)
+        
+        const payload={
+            username,
+            email,
+            regNo,
+            phNo,
+            branch,
+            year,
+            password: hashpassword
+        }
+
+        const newUser = new USERS(payload);
         const newTask = new TASKS({
             regNo: userDetails.regNo,
             domain1: {
@@ -34,13 +62,20 @@ const login = asyncErrorHandler(async (req, res) => {
         email: userDetails.email,
         password: userDetails.password
     }
-    const user = await USERS.findOne(reg);
-    if (user) {
-        const token = jwt.sign({ email: reg.email, role: 'user' }, SECRET, { expiresIn: process.env.TOKEN_TIMEOUT });
-        res.json({ message: 'User found successfully', user, token });
-    } else {
-        res.status(403).json(user);
+    const user = await USERS.findOne({email: reg.email});
+    if(!user){
+        res.status(403).json({message:"Invalid credentials"});
     }
+    console.log("user "+user);
+    
+    const verifyPassword=await bcryptjs.compare(reg.password,user.password)
+    if(!verifyPassword){
+        throw new CustomError("Invalid credentials", 401);
+    }
+    console.log("hihi");
+    
+    const token = jwt.sign({ email: reg.email, role: 'user' }, jwt_secret, { expiresIn: process.env.TOKEN_TIMEOUT });
+    res.json({ message: 'Success!', token });
 })
 
 const getUser = asyncErrorHandler(async (req, res) => {
