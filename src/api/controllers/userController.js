@@ -54,7 +54,7 @@ const signup = asyncErrorHandler(async (req, res) => {
       },
       domain2: {
         description: userDetails.domain2.description,
-        drive: userDetails.drive,
+        drive: userDetails.domain2.drive,
       },
     });
     await newUser.save();
