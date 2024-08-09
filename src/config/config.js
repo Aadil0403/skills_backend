@@ -10,6 +10,7 @@ module.exports = {
     port : parseInt(process.env.PORT, 10),
     mongo_url : process.env.NODE_ENV === "test" ? `${process.env.MONGO_URL}-${process.env.NODE_ENV}` : process.env.MONGO_URL,
     client_url : process.env.CLIENT_URL,
+    admin_url : process.env.ADMIN_URL,
     jwt_secret : process.env.JWT_SECRET,
     token_timeout : process.env.TOKEN_TIMEOUT
 } 

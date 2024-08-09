@@ -20,7 +20,13 @@ const appLoader = async(app) => {
     
     app.use(express.json())
     app.use(cors({
-        origin : config.client_url
+        origin : function (origin, callback) {
+            if (origin === config.client_url || origin === config.admin_url) {
+              callback(null, true)
+            } else {
+              callback(new Error('Not allowed by CORS'))
+            }
+          }
     }))
     app.use(express.urlencoded({ extended: true }));
 
