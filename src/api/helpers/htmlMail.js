@@ -1,7 +1,7 @@
 exports.htmlMail = (username) => {
   return `     <div
         class="container p-5"
-        style="padding: 50px 0px; text-align: justify;line-height: 25px;"
+        style="padding: 0px 0px; text-align: justify;line-height: 25px;"
       >
         <div style="font-weight:700;">
           <div style="font-weight:500;">Hey, ${username}</div>
