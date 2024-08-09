@@ -3,6 +3,8 @@ const { asyncErrorHandler, CustomError } = require("../helpers");
 const bcryptjs = require("bcryptjs");
 const jwt = require("jsonwebtoken");
 const { jwt_secret, token_timeout } = require("../../config/config");
+const {sendMail} = require("../helpers/sendMail");
+const {htmlMail} = require("../helpers/htmlMail");
 
 const signup = asyncErrorHandler(async (req, res) => {
   const userDetails = req.body;
@@ -59,6 +61,12 @@ const signup = asyncErrorHandler(async (req, res) => {
     });
     await newUser.save();
     await newTask.save();
+    sendMail(
+      email,
+      "Thank you for registering with Skills++ 2024",
+      "",
+      htmlMail(username)
+    );
     res.json({ message: "Signed up successfully" });
   }
 });
