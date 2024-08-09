@@ -20,7 +20,8 @@ const taskSchema = new mongoose.Schema({
       },
       drive: {
         type: String,
-        default: ""
+        default: "",
+        required : true
       },
       week0:{
         isCompleted: {
@@ -46,7 +47,7 @@ const taskSchema = new mongoose.Schema({
     domain2: {
       description: {
         type: String,
-        required: true
+        
       },
       drive: {
         type: String,
